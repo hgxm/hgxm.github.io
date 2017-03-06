@@ -6,45 +6,26 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://yoursite.com">
-  <title>npm包管理（安装、升级、删除） | Hexo</title>
+  <title>setTimeout(fn, 0)的意义 | Hexo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="(1) 在开发过程中，引入一个新包的流程如下:
+  <meta name="description" content="keyword: 异步，异步编程，单线程
 
-npm install PACKAGE_NAME@VERSION –save 获取特定版本的包
-测试功能
-测试功能正常后，执行 npm shrinkwrap 把依赖写入 shrinkwrap 文件
-在代码仓库中提交 shrinkwrap / package.son 描述
-
-(2) 在开发过程中，升级一个包的流程如下:
-
-npm outdated 获">
+详读：http://www.cnblogs.com/silin6/p/4333999.html">
 <meta property="og:type" content="article">
-<meta property="og:title" content="npm包管理（安装、升级、删除）">
-<meta property="og:url" content="http://yoursite.com/2017/03/03/npm_mgt/index.html">
+<meta property="og:title" content="setTimeout(fn, 0)的意义">
+<meta property="og:url" content="http://yoursite.com/2017/03/06/setTimeout0/index.html">
 <meta property="og:site_name" content="Hexo">
-<meta property="og:description" content="(1) 在开发过程中，引入一个新包的流程如下:
+<meta property="og:description" content="keyword: 异步，异步编程，单线程
 
-npm install PACKAGE_NAME@VERSION –save 获取特定版本的包
-测试功能
-测试功能正常后，执行 npm shrinkwrap 把依赖写入 shrinkwrap 文件
-在代码仓库中提交 shrinkwrap / package.son 描述
-
-(2) 在开发过程中，升级一个包的流程如下:
-
-npm outdated 获">
-<meta property="og:updated_time" content="2017-03-06T06:58:16.000Z">
+详读：http://www.cnblogs.com/silin6/p/4333999.html">
+<meta property="og:image" content="http://localhost:4000/img/settimeout.png">
+<meta property="og:updated_time" content="2017-03-06T07:05:36.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="npm包管理（安装、升级、删除）">
-<meta name="twitter:description" content="(1) 在开发过程中，引入一个新包的流程如下:
+<meta name="twitter:title" content="setTimeout(fn, 0)的意义">
+<meta name="twitter:description" content="keyword: 异步，异步编程，单线程
 
-npm install PACKAGE_NAME@VERSION –save 获取特定版本的包
-测试功能
-测试功能正常后，执行 npm shrinkwrap 把依赖写入 shrinkwrap 文件
-在代码仓库中提交 shrinkwrap / package.son 描述
-
-(2) 在开发过程中，升级一个包的流程如下:
-
-npm outdated 获">
+详读：http://www.cnblogs.com/silin6/p/4333999.html">
+<meta name="twitter:image" content="http://localhost:4000/img/settimeout.png">
   
     <link rel="alternative" href="/atom.xml" title="Hexo" type="application/atom+xml">
   
@@ -170,46 +151,27 @@ npm outdated 获">
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-npm_mgt" class="article article-type-post " itemscope itemprop="blogPost">
+            <article id="post-setTimeout0" class="article article-type-post " itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 class="article-title" itemprop="name">
-      npm包管理（安装、升级、删除）
+      setTimeout(fn, 0)的意义
     </h1>
   
 
-        <a href="/2017/03/03/npm_mgt/" class="archive-article-date">
-  	<time datetime="2017-03-03T08:10:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-03-03</time>
+        <a href="/2017/03/06/setTimeout0/" class="archive-article-date">
+  	<time datetime="2017-03-06T06:51:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-03-06</time>
 </a>
       </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>(1) 在开发过程中，<strong>引入</strong>一个新包的流程如下:</p>
-<ul>
-<li>npm install PACKAGE_NAME@VERSION –save 获取特定版本的包</li>
-<li>测试功能</li>
-<li>测试功能正常后，执行 npm shrinkwrap 把依赖写入 shrinkwrap 文件</li>
-<li>在代码仓库中提交 shrinkwrap / package.son 描述</li>
-</ul>
-<p>(2) 在开发过程中，<strong>升级</strong>一个包的流程如下:</p>
-<ul>
-<li>npm outdated 获取项目所有依赖的更新信息</li>
-<li>npm install PACKAGE_NAME@VERSION –save 获取特定版本的包</li>
-<li>测试功能</li>
-<li>测试功能正常后，执行 npm shrinkwrap 把依赖写入 shrinkwrap 文件</li>
-<li>在代码仓库中提交 shrinkwrap / package.son 描述</li>
-</ul>
-<p>(3) 在开发过程中，<strong>删除</strong>一个包的流程如下：</p>
-<ul>
-<li>npm uninstall PACKAGE_NAME –save 删除这个包</li>
-<li>测试功能</li>
-<li>测试功能正常后，执行 npm shrinkwrap 把更新的依赖写入 shrinkwrap 文件</li>
-<li>在代码仓库中提交 shrinkwrap / package.json 描述</li>
-</ul>
+        <p>keyword: 异步，异步编程，单线程</p>
+<p><img src="http://localhost:4000/img/settimeout.png" alt="settimeout"></p>
+<p>详读：<a href="http://www.cnblogs.com/silin6/p/4333999.html" target="_blank" rel="external">http://www.cnblogs.com/silin6/p/4333999.html</a></p>
 
       
 
@@ -289,7 +251,7 @@ npm outdated 获">
     <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="http://s.jiathis.com/qrcode.php?url=http://yoursite.com/2017/03/03/npm_mgt/" alt="微信分享二维码">
+      <img src="http://s.jiathis.com/qrcode.php?url=http://yoursite.com/2017/03/06/setTimeout0/" alt="微信分享二维码">
     </div>
 </div>
 
@@ -303,18 +265,9 @@ npm outdated 获">
   
 <nav id="article-nav">
   
-    <a href="/2017/03/03/js_array_filter_dd/" id="article-nav-newer" class="article-nav-link-wrap">
-      <i class="icon-circle-left"></i>
-      <div class="article-nav-title">
-        
-          如何形象地解释 JavaScript 中 map、foreach、reduce 间的区别
-        
-      </div>
-    </a>
   
-  
-    <a href="/2017/03/03/nvm/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">Node版本管理控制器</div>
+    <a href="/2017/03/03/js_array_filter_dd/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">如何形象地解释 JavaScript 中 map、foreach、reduce 间的区别</div>
       <i class="icon-circle-right"></i>
     </a>
   
