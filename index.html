@@ -141,6 +141,78 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-npm_command" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/03/08/npm_command/">npm常用命令小结</a>
+    </h1>
+  
+
+        <a href="/2017/03/08/npm_command/" class="archive-article-date">
+  	<time datetime="2017-03-08T08:23:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-03-08</time>
+</a>
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>本文列出一些使用过的常用的npm命令，在介绍这种CLI命令之前，先补充两小点芝士🧀<br><strong>（1）本地安装与全局安装</strong><br>本地安装指的是只将包下载到当前项目的node_module文件夹,当安装的包只需要在项目中被require使用时，用本地安装；全局安装指将包下载到本机安装的npm创建的／lib/node_module文件夹，当安装的包需要在控制台打命令行运行时，就需要全局安装，比如gulp，express cli等等。<br><strong>（2）package.json</strong><br>· 项目的命名是有一定要求的，小写，不能有空格，可以用下划线或者连字符。<br>· scripts 字段可以配置自定义的一些命令行语句，作用是简化命令行，而且统一命令行为npm run …的格式<br>· package.json里面还有两个比较重要的字段，即dependencies和devDependencies。npm install <package> –save会把安装的包写到dependencies，表示的是正式环境的包；npm install <package_name> –save－dev会把安装的包写到devDependencies，表示的是测试环境的包。很多人知道的就仅限于此了，测试和正式安装的版本不同会怎么样？install的时候是装哪一个？包的版本号是怎么控制的？这些深入了解的人就不多了，下面会仔细说明。</package_name></package></p>
+<h3 id="npm-install"><a href="#npm-install" class="headerlink" title="npm install"></a>npm install</h3><p>npm install的时候会将dependencies和devDependencies里面的包全部安装，当两个里面的包版本不同时，安装dependencies内的版本。</p>
+<p>其实dependencies和devDependencies里面如果有相同的包这种情况是不应该出现的，原因在于有些人对dependencies和devDependencies有一些误解，觉得devDependencies应该包含dependencies里面的内容，然后再在devDependencies中加入一些开发环境需要的包，其实devDependencies的意义在于增加一些开发环境需要的包以及一些未确定是否要用的包，如果某个包是确定要在线上用的，那么就直接写到dependencies就可以了，不需要在devDependencies中出现，简单来讲就是devDependencies其实已经包括dependencies了。所以当你测试完一个包觉得可以在线上使用时，你就可以把包写到dependencies里，然后删掉devDependencies中对应的包，保持包名不要重复出现，也有利于package.json文件的简洁。</p>
+<p>线上环境可以用npm install –production命令（或者配置了NODE_ENV环境变量为production），就只安装dependencies里面的包。安装完后可以用npm ls查看安装的包的情况。</p>
+<p>所有的包安装后都会带版本号，版本号的规则要符合包node-semver的解析规则，详见：<img src="https://github.com/npm/node-semver" alt="node-semver"></p>
+<h3 id="npm-uninstall"><a href="#npm-uninstall" class="headerlink" title="npm uninstall"></a>npm uninstall</h3><p>npm uninstall是卸载包的命令，不过很多人安装包的时候知道加–save或者–save-dev命令，而卸载的时候就会忘了加，如果这个包是确定不需要使用的，就可以直接加–save或者–save-dev从package.json中删掉它。卸载全局的包只需要加个-g参数。</p>
+<h3 id="npm-outdated"><a href="#npm-outdated" class="headerlink" title="npm outdated"></a>npm outdated</h3><p>npm outdated命令可以查看有新版本的包的版本情况，如下图所示，current是当前安装的包的版本，wanted是package.json里面写的版本，latest是最新版本<br><img src="http://localhost:4000/img/npmoutdated.png" alt="img"></p>
+<p>💗npm update命令可以更新本地package.json里面列举的包，当然，更新也会遵循package.json里面包的版本规则；不过更新全局的包不是用的update，而是直接重新npm install -g ，如果是更新所有全局的包，直接用npm update -g，话说这样变来变去不知道是出于什么考虑…💗</p>
+<h3 id="npm-update"><a href="#npm-update" class="headerlink" title="npm update"></a>npm update</h3><p>npm update [-g] [<pkg>…]用来更新包，需要注意的是包更新依然需要符合package.json中的版本号范围，只会在版本号范围内更新最新版本的包。有-g，–dev，–save参数，没有加具体包名时默认更新所有的包。</pkg></p>
+<h3 id="npm-link"><a href="#npm-link" class="headerlink" title="npm link"></a>npm link</h3><p>npm link是用来链接全局包的命令，npm link主要是为模块开发者使用的一个命令，设想这样的一个情景：你开发了一个模块a并发布了（npm public），并在项目中引入这个模块，在使用过程中发现了a有bug，你改动了a，于是需要重新npm public，发布完你又要回到自己的项目中用npm update命令来更新模块，如果只是小改动还好，如果是开发初期的频繁更新，那么就很浪费时间，毕竟自己开发的模块在本机还要更新，这个步骤明显很多余。npm link命令就是用来同步模块更新的，一般应用场景如下：</p>
+<p>自己开发的包名为appy，放在src/appy文件夹——cd to src/appy——npm link，将会把src/appy这个包复制到npm的全局模块安装文件夹node_modules内，并创建符号链接（symbolic link，应该是一个软链接）——自己的项目放在src/mysite文件夹——cd to src/mysite——npm link appy，那么项目中的appy包就会和src/appy相关联，每次npm publish后，项目文件夹里面的appy包都会随之更新。</p>
+<p>有时候这个包并不是你开发的，但是你想contribute这个包时，也可以在自己的项目文件夹中直接用npm link <package>，这个包同样会被安装到全局，并和此项目中的包相关联。</package></p>
+<h3 id="npm-ls-ll-la"><a href="#npm-ls-ll-la" class="headerlink" title="npm ls[ll | la]"></a>npm ls[ll | la]</h3><p>npm ls[ll | la]是和shell命令类似的语法，就是列举信息，默认以树形的方式列举包名，包括其依赖，ll和la列举的信息较为多一点。如果你想用json格式来列举，可以通过设置config文件的json字段来设置，用npm config set json true，则将以json格式来显示包及其依赖，不过这个字段是npm全局的，很多命令的显示都会变成json格式。其余还有一些蛮有用的配置项，比如如果列举的依赖过多，可以设置depth（int）参数来限制显示的层级，prod / production（Boolean）来只显示dependencies的依赖，dev（Boolean）来只显示devDependencies的依赖等等。 </p>
+<h3 id="npm-config"><a href="#npm-config" class="headerlink" title="npm config"></a>npm config</h3><p>npm config是npm中查看配置信息的命令，主要涉及npmrc files 文件</p>
+<h3 id="npm-docs"><a href="#npm-docs" class="headerlink" title="npm docs "></a>npm docs <pkg></pkg></h3><p>npm docs <pkg> 这个命令可以直接打开包的官方文档网站，一般就是github了，不过打开速度不是很快。</pkg></p>
+<h3 id="npm-explore-–"><a href="#npm-explore-–" class="headerlink" title="npm explore  [ – ]"></a>npm explore <pkg> [ – <cmd>]</cmd></pkg></h3><p>npm explore <pkg> [ – <cmd>] explore 可以暂时定位到包的目录，可以查看修改包内的内容，当然修改完要用npm rebuilt <pkg>来重新编译包；cmd 可以添加一些命令行指令，官网给出的例子是– git pull origin master，即更新本地git仓库，一般用在包的子模块的更新。exit或者ctrl C 可以退出包目录返回原来的目录地址。</pkg></cmd></pkg></p>
+<h3 id="npm-prune"><a href="#npm-prune" class="headerlink" title="npm prune"></a>npm prune</h3><p>npm prune，这个命令要和package.json文件路径下运行，将会移除package.json中没有列举的node_modules的包，如果是生产环境中或者加–production，将会移除devDependencies里面的包，用于清理多余的包资源。</p>
+<h3 id="npm-root-g"><a href="#npm-root-g" class="headerlink" title="npm root [-g]"></a>npm root [-g]</h3><p>💗（实用）打印出node_modules文件夹路径，加个-g可以查看全局包的安装路径，有时候忘了全局包安装路径这个小命令还是蛮有用的。</p>
+<h3 id="npm-run"><a href="#npm-run" class="headerlink" title="npm run"></a>npm run</h3><p>npm run <command>用npm run来跑package.json里面script字段内的命令，可以直接打npm run查看有哪些命令</p>
+<h3 id="npm-shrinkwrap"><a href="#npm-shrinkwrap" class="headerlink" title="npm shrinkwrap"></a>npm shrinkwrap</h3><p>这个命令用来指定安装的包版本，主要是为了项目环境的稳定。因为传统的npm install安装的包写入package.json时往往带的是一个版本号范围，有时候为了在其他地方安装能够保持版本号一致或者在线上部署希望项目稳定，所以希望用npm install安装依赖时安装的包和测试通过时是一样的，或者说保持版本号一致，npm shrinkwrap就是这样的一个功能。npm shrinkwrap会在目录下面创建npm-shrinkwrap.json文件，里面是项目中已经安装的包（包括所有包内嵌套的包）的确定版本号以及包的下载位置，当用npm install是，会直接安装npm-shrinkwrap.json文件内列举的包名。如果想要更新npm-shrinkwrap.json文件内的包，可以先用npm update <package>更新包，再用npm shrinkwrap命令来重新创建npm-shrinkwrap.json文件，npm shrinkwrap默认只确定package.json中de­pen­den­cies内的包，测试环境的包需要加–dev参数。</package></p>
+<h3 id="npm-view"><a href="#npm-view" class="headerlink" title="npm view"></a>npm view</h3><p>npm view可以查看很多信息，下面列举几个常用的：</p>
+<p>npm view connect直接接包名查看包信息</p>
+<p>npm view npm view ronn@0.3.5 dependencies查看包依赖</p>
+<p>npm view connect versions查看包历史版本列表，如果version不加s则表示查看包最新版本。</p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2017/03/08/npm_command/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+
+
+
+
+
+
+
+  
     <article id="post-react-redux" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
