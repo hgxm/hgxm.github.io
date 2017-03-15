@@ -15,7 +15,7 @@
 <meta property="og:site_name" content="Hexo">
 <meta property="og:description" content="本文列出一些使用过的常用的npm命令，在介绍这种CLI命令之前，先补充两小点芝士🧀（1）本地安装与全局安装本地安装指的是只将包下载到当前项目的node_module文件夹,当安装的包只需要在项目中被require使用时，用本地安装；全局安装指将包下载到本机安装的npm创建的／lib/node_module文件夹，当安装的包需要在控制台打命令行运行时，就需要全局安装，比如gulp，express">
 <meta property="og:image" content="https://hgxm.github.io/img/npmoutdated.png">
-<meta property="og:updated_time" content="2017-03-10T07:37:34.000Z">
+<meta property="og:updated_time" content="2017-03-14T07:19:04.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="npm常用命令小结">
 <meta name="twitter:description" content="本文列出一些使用过的常用的npm命令，在介绍这种CLI命令之前，先补充两小点芝士🧀（1）本地安装与全局安装本地安装指的是只将包下载到当前项目的node_module文件夹,当安装的包只需要在项目中被require使用时，用本地安装；全局安装指将包下载到本机安装的npm创建的／lib/node_module文件夹，当安装的包需要在控制台打命令行运行时，就需要全局安装，比如gulp，express">
@@ -173,6 +173,7 @@
 <p>线上环境可以用npm install –production命令（或者配置了NODE_ENV环境变量为production），就只安装dependencies里面的包。安装完后可以用npm ls查看安装的包的情况。</p>
 <p>所有的包安装后都会带版本号，版本号的规则要符合包node-semver的解析规则，详见：<a href="https://github.com/npm/node-semver" target="_blank" rel="external">node-semver</a></p>
 <h3 id="npm-uninstall"><a href="#npm-uninstall" class="headerlink" title="npm uninstall"></a>npm uninstall</h3><p>npm uninstall是卸载包的命令，不过很多人安装包的时候知道加–save或者–save-dev命令，而卸载的时候就会忘了加，如果这个包是确定不需要使用的，就可以直接加–save或者–save-dev从package.json中删掉它。卸载全局的包只需要加个-g参数。</p>
+<h3 id="查看一个包依赖的所有包及版本"><a href="#查看一个包依赖的所有包及版本" class="headerlink" title="查看一个包依赖的所有包及版本"></a>查看一个包依赖的所有包及版本</h3><p>🌰<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">npm info &quot;eslint-config-airbnb@latest&quot; peerDependencies</div></pre></td></tr></table></figure></p>
 <h3 id="npm-outdated"><a href="#npm-outdated" class="headerlink" title="npm outdated"></a>npm outdated</h3><p>npm outdated命令可以查看有新版本的包的版本情况，如下图所示，current是当前安装的包的版本，wanted是package.json里面写的版本，latest是最新版本<br><img src="https://hgxm.github.io/img/npmoutdated.png" alt="img"></p>
 <p>💗npm update命令可以更新本地package.json里面列举的包，当然，更新也会遵循package.json里面包的版本规则；不过更新全局的包不是用的update，而是直接重新npm install -g ，如果是更新所有全局的包，直接用npm update -g，话说这样变来变去不知道是出于什么考虑…💗</p>
 <h3 id="npm-update"><a href="#npm-update" class="headerlink" title="npm update"></a>npm update</h3><p>npm update [-g] [<pkg>…]用来更新包，需要注意的是包更新依然需要符合package.json中的版本号范围，只会在版本号范围内更新最新版本的包。有-g，–dev，–save参数，没有加具体包名时默认更新所有的包。</pkg></p>
@@ -284,6 +285,15 @@
 
   
 <nav id="article-nav">
+  
+    <a href="/2017/03/15/atom_eslint/" id="article-nav-newer" class="article-nav-link-wrap">
+      <i class="icon-circle-left"></i>
+      <div class="article-nav-title">
+        
+          Atom编辑器配置Eslint
+        
+      </div>
+    </a>
   
   
     <a href="/2017/03/07/react-redux/" id="article-nav-older" class="article-nav-link-wrap">
