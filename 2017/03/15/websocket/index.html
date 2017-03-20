@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" >
+  <link rel="dns-prefetch" href="http://yoursite.com">
+  <title>Websocket | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="（一）背景演出票选座项目实现基于socket的实时锁座功能
+（二）可行性分析？场景1：卖的很慢的票，实时渲染意义不大（一直发请求 查数据）场景2：卖的快的票。（快的程度，一般快意义是否大？）非常快, 渲染可能会卡
+所以取决于买票的速度到底有多快
+Socket对页面性能会有很大的损耗，选座页面现在本身就会比较卡
+Socket的实现方式（socket.io）
+（三）技术选型
+
+Websocket AP">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Websocket">
+<meta property="og:url" content="http://yoursite.com/2017/03/15/websocket/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="（一）背景演出票选座项目实现基于socket的实时锁座功能
+（二）可行性分析？场景1：卖的很慢的票，实时渲染意义不大（一直发请求 查数据）场景2：卖的快的票。（快的程度，一般快意义是否大？）非常快, 渲染可能会卡
+所以取决于买票的速度到底有多快
+Socket对页面性能会有很大的损耗，选座页面现在本身就会比较卡
+Socket的实现方式（socket.io）
+（三）技术选型
+
+Websocket AP">
+<meta property="og:image" content="http://localhost:4000/img/yuanli.png">
+<meta property="og:image" content="http://localhost:4000/img/socket_server.png">
+<meta property="og:image" content="http://localhost:4000/img/socket_client.png">
+<meta property="og:updated_time" content="2017-03-15T17:01:20.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Websocket">
+<meta name="twitter:description" content="（一）背景演出票选座项目实现基于socket的实时锁座功能
+（二）可行性分析？场景1：卖的很慢的票，实时渲染意义不大（一直发请求 查数据）场景2：卖的快的票。（快的程度，一般快意义是否大？）非常快, 渲染可能会卡
+所以取决于买票的速度到底有多快
+Socket对页面性能会有很大的损耗，选座页面现在本身就会比较卡
+Socket的实现方式（socket.io）
+（三）技术选型
+
+Websocket AP">
+<meta name="twitter:image" content="http://localhost:4000/img/yuanli.png">
+  
+    <link rel="alternative" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link rel="stylesheet" href="/main.css?v=4.0.0.css">
+  
+
+  
+
+</head>
+
+<body>
+  <div id="container" q-class="show:isCtnShow">
+    <canvas id="anm-canvas" class="anm-canvas"></canvas>
+    <div class="left-col" q-class="show:isShow">
+      <div class="overlay"></div>
+<div class="intrude-less">
+	<header id="header" class="inner">
+		<a href="/" class="profilepic">
+			<img src="http://img1.imgtn.bdimg.com/it/u=4024063500,4212198443&amp;fm=21&amp;gp=0.jpg" class="js-avatar">
+		</a>
+
+		<hgroup>
+		  <h1 class="header-author"><a href="/">张雪梅</a></h1>
+		</hgroup>
+
+		
+
+		<nav class="header-menu">
+			<ul>
+			
+				<li><a href="/">主页</a></li>
+	        
+				<li><a href="/tags/随笔/">随笔</a></li>
+	        
+			</ul>
+		</nav>
+		<nav class="header-smart-menu">
+	        
+    		
+    			
+    			<a data-idx="0" q-on="click: openSlider(e, 'innerArchive')" href="javascript:void(0)">所有文章</a>
+    			
+    			
+            
+    			
+    			<a data-idx="1" q-on="click: openSlider(e, 'friends')" href="javascript:void(0)">友链</a>
+    			
+    			
+            
+    			
+    			<a data-idx="2" q-on="click: openSlider(e, 'aboutme')" href="javascript:void(0)">关于我</a>
+    			
+    			
+            
+		</nav>
+		<nav class="header-nav">
+			<div class="social">
+				
+					<a class="github" target="_blank" href="#" title="github"><i class="icon-github"></i></a>
+		        
+					<a class="weibo" target="_blank" href="#" title="weibo"><i class="icon-weibo"></i></a>
+		        
+					<a class="rss" target="_blank" href="#" title="rss"><i class="icon-rss"></i></a>
+		        
+					<a class="zhihu" target="_blank" href="#" title="zhihu"><i class="icon-zhihu"></i></a>
+		        
+			</div>
+		</nav>
+	</header>		
+</div>
+
+    </div>
+    <div class="mid-col" q-class="show:isShow,hide:isShow|isFalse">
+      <nav id="mobile-nav">
+  	<div class="overlay">
+  		<div class="slider-trigger"><i class="icon-sort"></i></div>
+  		<h1 class="header-author js-mobile-header hide">张雪梅</h1>
+  	</div>
+	<div class="intrude-less">
+		<header id="header" class="inner">
+			<div class="profilepic">
+				<img src="http://img1.imgtn.bdimg.com/it/u=4024063500,4212198443&amp;fm=21&amp;gp=0.jpg" class="js-avatar">
+			</div>
+			<hgroup>
+			  <h1 class="header-author">张雪梅</h1>
+			</hgroup>
+			
+			<nav class="header-menu">
+				<ul>
+				
+					<li><a href="/">主页</a></li>
+		        
+					<li><a href="/tags/随笔/">随笔</a></li>
+		        
+		        
+		        	<li><a href="/archives/">所有文章</a></li>
+		        
+				</ul>
+			</nav>
+			<nav class="header-nav">
+				<div class="social">
+					
+						<a class="github" target="_blank" href="#" title="github"><i class="icon-github"></i></a>
+			        
+						<a class="weibo" target="_blank" href="#" title="weibo"><i class="icon-weibo"></i></a>
+			        
+						<a class="rss" target="_blank" href="#" title="rss"><i class="icon-rss"></i></a>
+			        
+						<a class="zhihu" target="_blank" href="#" title="zhihu"><i class="icon-zhihu"></i></a>
+			        
+				</div>
+			</nav>
+		</header>				
+	</div>
+</nav>
+
+      <div id="wrapper" class="body-wrap">
+        <div class="menu-l">
+          <div class="canvas-wrap">
+            <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
+          </div>
+          <div id="js-content" class="content-ll">
+            <article id="post-websocket" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Websocket
+    </h1>
+  
+
+        <a href="/2017/03/15/websocket/" class="archive-article-date">
+  	<time datetime="2017-03-15T15:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-03-15</time>
+</a>
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>（一）背景<br>演出票选座项目实现基于socket的实时锁座功能</p>
+<p>（二）可行性分析？<br>场景1：卖的很慢的票，实时渲染意义不大（一直发请求 查数据）<br>场景2：卖的快的票。（快的程度，一般快意义是否大？）非常快, 渲染可能会卡</p>
+<p>所以取决于买票的速度到底有多快</p>
+<p>Socket对页面性能会有很大的损耗，选座页面现在本身就会比较卡</p>
+<p>Socket的实现方式（socket.io）</p>
+<p>（三）技术选型</p>
+<ol>
+<li>Websocket API</li>
+<li>socket.io</li>
+</ol>
+<p><img src="http://localhost:4000/img/yuanli.png" alt="yuanli"></p>
+<p>（四）Socket.io Demo<br><a href="http://socket.io/get-started/chat/" target="_blank" rel="external">http://socket.io/get-started/chat/</a><br>20行代码实现一个基于socket的聊天应用程序！！！<br>[ server端 ]<br><img src="http://localhost:4000/img/socket_server.png" alt="server"></p>
+<p>[ client端 ]<br><img src="http://localhost:4000/img/socket_client.png" alt="client"></p>
+<p>详细请移步 <a href="https://hgxm.github.io/2016/12/30/socket/" target="_blank" rel="external">socket.io</a></p>
+<p>本文将重点介绍websocket！！！</p>
+<p>（五）Websocket<br>（1）介绍</p>
+<ul>
+<li>Web Sockets的目标是在一个单独的持久连接上提供全双工、双向通信</li>
+<li>创建Web Socket之后，会有一个HTTP请求发送到浏览器已发起连接，在取得服务器响应后，建立的连接会使用HTTP升级从HTTP协议交换为Web Socket协议，也就是说，标准的HTTP服务器无法实现Web Sockets，只有支持这种协议的服务器才可以实现Web sockets</li>
+<li>由于Web Sockets使用了自定义的协议，所以URL模式也略有不同。未加密的链接不再是<a href="http://，而是ws://，加密的连接也不是https://，而是wss://" target="_blank" rel="external">http://，而是ws://，加密的连接也不是https://，而是wss://</a></li>
+</ul>
+<p>(2)Web Sockets API<br>✨创建链接。实例化一个WebSocket对象并传入要连接的URL。实例化后，浏览器就会马上尝试创建连接<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">var socket = new WebSocket(&quot;ws://www.example.com/server.php&quot;)</div></pre></td></tr></table></figure></p>
+<p>注意：必须给WebSocket构造函数传入绝对URL。<br>同源策略对WebSocket不适用，所以可以通过它打开任何站点的连接，此时能否正常通信完全取决于服务器</p>
+<p>WebSocket与XHR类似，也有一个表示当前状态的readyState</p>
+<ul>
+<li>WebSocket.opening (0): 正在建立连接</li>
+<li>WebSocket.open    (1): 已经建立连接</li>
+<li>WebSocket.closing (2): 正在关闭连接</li>
+<li>WebSocket.close   (3): 已经关闭连接</li>
+</ul>
+<p>✨发送数据<br>向服务器端发送数据，使用send方法并传入任意字符串<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">var socket = new WebSocket(&quot;ws://www.example.com/server.php&quot;)</div><div class="line">socket.send(&quot;Hello Server!haha!&quot;);</div></pre></td></tr></table></figure></p>
+<p>因为Web Sockets只能通过连接发送纯文本数据，所以对于复杂的数据结构，再通过连接发送前，必须进行序列化，如<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">var message = &#123;</div><div class="line">    time: new Date(),</div><div class="line">    text: &apos;hello&apos;,</div><div class="line">    clientId: &apos;123456&apos;</div><div class="line">&#125;;</div><div class="line"></div><div class="line">socket.send(JSON.stringify(message))</div></pre></td></tr></table></figure></p>
+<p>✨接受数据<br>当服务器想客户端发来消息时，WebSocket对象就会触发message事件，message把返回的数据保存在event.data中<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">socket.onmessage = function(event) &#123;</div><div class="line">    var data = event.data;</div><div class="line">    </div><div class="line">    // 处理数据</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>与send相同，event.data中返回的数据也是字符串，如果想得到其他格式的数据，必须手工解析这些数据。</p>
+<p>✨关闭连接<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">socket.close();</div></pre></td></tr></table></figure></p>
+<p>✨其他事件<br>WebSocket对象不支持DOM2级事件监听，所以必须用DOM0语法定义每个事件处理程序！！！</p>
+<p><1> open：在成功建立连接时触发<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">socket.open = function() &#123;</div><div class="line">    alert(&quot;Connection established&quot;)</div><div class="line">&#125;</div></pre></td></tr></table></figure></1></p>
+<p><2> error：在发生错误时触发，连接不能持续<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">socket.error = function() &#123;</div><div class="line">    alert(&quot;Connection error&quot;)</div><div class="line">&#125;</div></pre></td></tr></table></figure></2></p>
+<p><3> close：在连接关闭时触发。注意，这三个事件中只有close事件的event对象有额外的信息<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">socket.onclose = function(event) &#123;</div><div class="line">    console.log(&quot;Was clean?&quot; + event.wasClean + &quot;Code=&quot; + vent.code + &quot;Reason=&quot; + event.reason)</div><div class="line">&#125;</div></pre></td></tr></table></figure></3></p>
+<ul>
+<li>wasClean: 布尔值，表示连接是否已经明确地关闭</li>
+<li>code：服务器返回的数值状态吗</li>
+<li>reason：字符串，服务器发回的信息</li>
+</ul>
+<p>（六）项目实现（核心代码）<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">let websocket; （全局）</div><div class="line"></div><div class="line">componentWillMount() &#123;</div><div class="line">    ······</div><div class="line">    // websocket connect</div><div class="line">    this.websocketInit(params.area_id)</div><div class="line">    ······</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">websocketInit(area_id) &#123;</div><div class="line">    this.props.actions.fetchSocketUrl(area_id).then(() =&gt; &#123;</div><div class="line">        let socket_url = this.props.entry_point.entry_point</div><div class="line">        if (!!window.WebSocket &amp;&amp; window.WebSocket.prototype.send) &#123;</div><div class="line">            websocket = new WebSocket(socket_url)</div><div class="line">            this.webSocketController(this)</div><div class="line">        &#125;else &#123;</div><div class="line">            console.log(&quot;抱歉，您的浏览器暂不支持websocket&quot;)</div><div class="line">        &#125;</div><div class="line">    &#125;)</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line">webSocketController(_this) &#123;</div><div class="line">    // send data from c to s</div><div class="line">    websocket.onopen = function() &#123;&#125;</div><div class="line"></div><div class="line">    websocket.onmessage = function(res)&#123;</div><div class="line">        let data = res.data &amp;&amp; JSON.parse(res.data)</div><div class="line">        let lockedSeat = data.body &amp;&amp; JSON.parse(data.body).seats[0]</div><div class="line"></div><div class="line">        let _lockedSeatsStore = _this.state.lockedSeatsStore.concat(lockedSeat)</div><div class="line"></div><div class="line">        _this.setState(&#123;</div><div class="line">            lockedSeatsStore: _lockedSeatsStore</div><div class="line">        &#125;)</div><div class="line">        </div><div class="line">        // 实时锁座</div><div class="line">        lockedSeat &amp;&amp; _this.props.actions.renderLockSeat(_this.state.lockedSeatsStore)</div><div class="line">        </div><div class="line">    &#125;</div><div class="line"></div><div class="line">    websocket.onclose = function (event) &#123;</div><div class="line">        console.log(&quot;Was clean?&quot; + event.wasClean + &quot;Code=&quot; + vent.code + &quot;Reason=&quot; + event.reason)</div><div class="line">        websocket.close()</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    websocket.onerror = function (evt) &#123;</div><div class="line">        console.log(&quot;error&quot; + evt.data)</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">export function fetchSocketUrl(area_id) &#123;</div><div class="line">    let url = `$&#123;API_PATH&#125;/seats/@push_service?area_id=$&#123;area_id&#125;`</div><div class="line"></div><div class="line">    return (dispatch, getState) =&gt; &#123;</div><div class="line"></div><div class="line">        return new GET(url)</div><div class="line">            .loading(true)</div><div class="line">            .cache(false)</div><div class="line">            .send()</div><div class="line">            .then(resp =&gt; &#123;</div><div class="line">                console.log(resp, &apos;resp in fetchSocketUrl&apos;)</div><div class="line">                resp &amp;&amp; dispatch(receiveSocketUrl(resp))</div><div class="line">            &#125;)</div><div class="line">            .catch(error =&gt; &#123;</div><div class="line">                // Message.show(error.message)</div><div class="line">                throw error</div><div class="line">            &#125;)</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div></pre></td><td class="code"><pre><div class="line">(座位渲染，部分代码)</div><div class="line">seats = seats.map((seat) =&gt; &#123;</div><div class="line"></div><div class="line">    let _seat = &#123;...seat&#125;</div><div class="line"></div><div class="line">    // 筛选用户自己选的座位, seat单个对象&#123;&#125;</div><div class="line">    const selected = userSeats.filter((item) =&gt; &#123;</div><div class="line">        return item.id === _seat.id</div><div class="line">    &#125;)[0]</div><div class="line">    </div><div class="line">    // 判断lockedSeatId在不在userSeats里</div><div class="line">    lockedSeats &amp;&amp; lockedSeats.forEach((item) =&gt; &#123;</div><div class="line">        if(userSeats.indexOf(item) === -1 &amp;&amp; seat.id === item.id &amp;&amp; item.st === 5) &#123;</div><div class="line">            _seat.st = 3</div><div class="line">        &#125;</div><div class="line">        if(item.st === 1 &amp;&amp; seat.id === item.id) &#123;</div><div class="line">            _seat.st = 1</div><div class="line">        &#125;</div><div class="line">    &#125;)</div><div class="line"></div><div class="line">    if (selected) &#123;</div><div class="line">        _seat.st = selected.st</div><div class="line">        _seat.n = selected.n</div><div class="line">        _seat.price = Number.parseFloat(selected.price_name, 10)</div><div class="line">        _seat.amount = amount / 100</div><div class="line">        _seat.loadAmount = loadAmount / 100</div><div class="line">        // if (_seat.st === 5) &#123;</div><div class="line">        //     userSeatsInfo.push(_seat)</div><div class="line">        // &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    return _seat</div><div class="line">&#125;)</div><div class="line"></div><div class="line">if (userSeats.length &gt; 0) &#123;</div><div class="line">    userSeats = userSeats.map(seat =&gt; &#123;</div><div class="line">        seats.filter((item) =&gt; &#123;</div><div class="line">            item.st === 5 &amp;&amp; item.id === seat.id &amp;&amp; userSeatsInfo.push(item)</div><div class="line">        &#125;)</div><div class="line">    &#125;)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>（七）异常处理和优化部分<br>上边提到的都是基础、核心部分，下边详细介绍一下WebSocket的异常部分以及处理办法！</p>
+<p>（1）离开当前页面时断开连接</p>
+<ul>
+<li><p>服务器主导的断开：可以直接断开TCP，但是太暴力，所以，服务器从不主动断开，而是向客户端发送请求断开的操作码来让客户端自己断开。<br>客户端在收到服务器的这个断连请求后应该调用close方法来关闭，否则连接会先入停滞状态等待客户端响应。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">var ws=new WebSocket(&quot;ws://127.0.0.1:8000&quot;);</div><div class="line">ws.onclose=function(e)&#123;</div><div class="line">  console.log(e);</div><div class="line">  ws.close(); //关闭TCP连接</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+</li>
+<li><p>客户端主导的断开：<br>客户端先要调用close方法，这个操作会发送一个断连请求到服务器上，服务器收到这个请求后把TCP连接断开即可。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">//客户端程序</div><div class="line">var ws=new WebSocket(&quot;ws://127.0.0.1:8000&quot;);</div><div class="line">ws.onopen=function()&#123;</div><div class="line">  ws.close(); //发起断连请求</div><div class="line">&#125;;</div><div class="line">ws.onclose=function(e)&#123;</div><div class="line">  console.log(e);</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>总之，客户端直接调用close方法并不会关闭连接，而是发送请求到服务器请求对方。服务器接收请求后可以断开连接。这会触发客户端的close事件。当然，在断开之前也可以发送个同样的断连请求，并包含状态码和原因描述。</p>
+<p>（2）断开重连/心跳重连（通过心跳保持连接）[二期/版本2优化实现部分]<br>实现原理：在js中使用websocket发送信息之前，判断websocket对象是不是打开的，如果不是则重新构造/连接。</p>
+<p>原由：在使用websocket过程中，可能会出现网络断开的情况，比如信号不好，或者网络临时性关闭，这时候websocket的连接已经断开，<br>而此时浏览器不会触发websocket 的 onclose方法，因此我们无法知道是否断开连接，也就无法进行重连操作。<br>如果当前发送websocket数据到后端，一旦请求超时，onclose便会执行，这时候便可进行绑定好的重连操作。<br>因此websocket心跳重连就应运而生。</p>
+<p>实现：<br>如果希望websocket连接一直保持，我们会在close或者error上绑定重新连接方法。这样一般正常情况下失去连接时，触发onclose方法，我们就能执行重连了。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">var ws = new WebSocket(url);</div><div class="line">ws.onclose = function () &#123;</div><div class="line">    reconnect();</div><div class="line">&#125;;</div><div class="line">ws.onerror = function () &#123;</div><div class="line">    reconnect();</div><div class="line">&#125;;</div></pre></td></tr></table></figure></p>
+<p>那么针对断网的情况的心跳重连，怎么实现呢。<br>简单的实现:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">var heartCheck = &#123;</div><div class="line">    timeout: 60000,//60ms</div><div class="line">    timeoutObj: null,</div><div class="line">    reset: function()&#123;</div><div class="line">        clearTimeout(this.timeoutObj);</div><div class="line">　　　　 this.start();</div><div class="line">    &#125;,</div><div class="line">    start: function()&#123;</div><div class="line">        this.timeoutObj = setTimeout(function()&#123;</div><div class="line">            ws.send(&quot;HeartBeat&quot;, &quot;beat&quot;);</div><div class="line">        &#125;, this.timeout)</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line">ws.onopen = function () &#123;</div><div class="line">   heartCheck.start();</div><div class="line">&#125;;</div><div class="line">ws.onmessage = function (event) &#123;</div><div class="line">    heartCheck.reset();</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>如上代码，heartCheck 的 reset和start方法主要用来控制心跳的定时。</p>
+<p>当onopen也就是连接上时，我们便开始start计时，如果在定时时间范围内，onmessage获取到了服务器的消息，我们就重置倒计时，</p>
+<p>所以在距离上次从服务器获取到消息，闲置60秒之后我们才会心跳检测，这个检测时间可以自己根据自身情况设定。</p>
+<p>当心跳检测send执行之后，如果当前websocket是断开状态，发送超时之后，onclose方法便会被执行，重连也执行了。</p>
+<p>如此一来，我们判断前端主动断开ws的心跳检测就实现了。为什么说是前端主动断开，因为当前这种情况主要是通过前端ws的事件来判断的，后面说后端主动断开的情况。</p>
+<p>判断后端主动断开：</p>
+<pre><code>如果后端因为一些情况断开了ws，是可控情况下的话，会下发一个断连的消息通知，之后才会断开，我们便会重连。
+</code></pre><p>如果因为一些异常断开了连接，我们是不会感应到的，所以如果我们发送了心跳一定时间之后，后端既没有返回心跳响应消息，前端又没有收到任何其他消息的话，我们就能断定后端主动断开了。</p>
+<p>一点特别重要的发送心跳到后端，后端收到消息之后必须返回消息，否则超过60秒之后会判定后端主动断开了。<br>PS：</p>
+<pre><code>因为目前我们这种方式会一直重连如果没连接上或者断连的话，如果有两个设备同时登陆并且会踢另一端下线，一定要发送一个踢下线的消息类型，这边接收到这种类型的消息，逻辑判断后就不再执行reconnect，否则会出现一只相互挤下线的死循环。
+</code></pre><p>完整代码示例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div></pre></td><td class="code"><pre><div class="line">var ws;//websocket实例</div><div class="line">    var lockReconnect = false;//避免重复连接</div><div class="line">    var wsUrl = &apos;ws:xxx.1.1.1&apos;;</div><div class="line">    </div><div class="line">    function createWebSocket(url) &#123;</div><div class="line">        try &#123;</div><div class="line">            ws = new WebSocket(url);</div><div class="line">            initEventHandle();</div><div class="line">        &#125; catch (e) &#123;</div><div class="line">            reconnect(url);</div><div class="line">        &#125;     </div><div class="line">    &#125;</div><div class="line"></div><div class="line">    function initEventHandle() &#123;</div><div class="line">        ws.onclose = function () &#123;</div><div class="line">            reconnect(wsUrl);</div><div class="line">        &#125;;</div><div class="line">        ws.onerror = function () &#123;</div><div class="line">            reconnect(wsUrl);</div><div class="line">        &#125;;</div><div class="line">        ws.onopen = function () &#123;</div><div class="line">            //心跳检测重置</div><div class="line">            heartCheck.reset().start();</div><div class="line">        &#125;;</div><div class="line">        ws.onmessage = function (event) &#123;</div><div class="line">            //如果获取到消息，心跳检测重置</div><div class="line">            //拿到任何消息都说明当前连接是正常的</div><div class="line">            heartCheck.reset().start();</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    function reconnect(url) &#123;</div><div class="line">        if(lockReconnect) return;</div><div class="line">        lockReconnect = true;</div><div class="line">        //没连接上会一直重连，设置延迟避免请求过多</div><div class="line">        setTimeout(function () &#123;</div><div class="line">            createWebSocket(url);</div><div class="line">            lockReconnect = false;</div><div class="line">        &#125;, 2000);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    </div><div class="line">    //心跳检测</div><div class="line">    var heartCheck = &#123;</div><div class="line">        timeout: 60000,//60秒</div><div class="line">        timeoutObj: null,</div><div class="line">        serverTimeoutObj: null,</div><div class="line">        reset: function()&#123;</div><div class="line">            clearTimeout(this.timeoutObj);</div><div class="line">            clearTimeout(this.serverTimeoutObj);</div><div class="line">            return this;</div><div class="line">        &#125;,</div><div class="line">        start: function()&#123;</div><div class="line">            var self = this;</div><div class="line">            this.timeoutObj = setTimeout(function()&#123;</div><div class="line">                //这里发送一个心跳，后端收到后，返回一个心跳消息，</div><div class="line">                //onmessage拿到返回的心跳就说明连接正常</div><div class="line">                ws.send(&quot;HeartBeat&quot;);</div><div class="line">                self.serverTimeoutObj = setTimeout(function()&#123;//如果超过一定时间还没重置，说明后端主动断开了</div><div class="line">                    ws.close();//如果onclose会执行reconnect，我们执行ws.close()就行了.如果直接执行reconnect 会触发onclose导致重连两次</div><div class="line">                &#125;, self.timeout)</div><div class="line">            &#125;, this.timeout)</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    createWebSocket(wsUrl);</div></pre></td></tr></table></figure>
+
+      
+
+      
+        <div class="page-reward">
+          <a href="javascript:;" class="page-reward-btn tooltip-top">
+            <div class="tooltip tooltip-east">
+            <span class="tooltip-item">
+              赏
+            </span>
+            <span class="tooltip-content">
+              <span class="tooltip-text">
+                <span class="tooltip-inner">
+                  <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我吃糖果<i class="icon icon-quo-right"></i></p>
+                  <div class="reward-box">
+                    
+                    
+                  </div>
+                </span>
+              </span>
+            </span>
+          </div>
+          </a>
+        </div>
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      
+
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
+        </div>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="http://s.jiathis.com/qrcode.php?url=http://yoursite.com/2017/03/15/websocket/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+  
+<nav id="article-nav">
+  
+    <a href="/2017/03/20/eruda/" id="article-nav-newer" class="article-nav-link-wrap">
+      <i class="icon-circle-left"></i>
+      <div class="article-nav-title">
+        
+          移动端调试之eruda
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2017/03/15/atom_eslint/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Atom编辑器配置Eslint</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+
+
+
+
+
+
+
+          </div>
+        </div>
+      </div>
+      <footer id="footer">
+  <div class="outer">
+    <div id="footer-info">
+    	<div class="footer-left">
+    		&copy; 2017 张雪梅
+    	</div>
+      	<div class="footer-right">
+      		<a href="http://hexo.io/" target="_blank">Hexo</a>  Theme <a href="https://github.com/litten/hexo-theme-yilia" target="_blank">Yilia</a> by Litten
+      	</div>
+    </div>
+  </div>
+</footer>
+    </div>
+    <script>
+	var yiliaConfig = {
+		mathjax: false,
+		isHome: false,
+		isPost: true,
+		isArchive: false,
+		isTag: false,
+		isCategory: false,
+		open_in_new: false,
+		root: "/",
+		innerArchive: true
+	}
+</script>
+
+<script src="/./main.js?v=4.0.0.js"></script>
+
+
+    
+<div class="tools-col" q-class="show:isShow,hide:isShow|isFalse" q-on="click:stop(e)">
+  <div class="tools-wrap">
+    
+    	<section class="tools-section tools-section-all" q-show="innerArchive">
+        <div class="search-wrap">
+          <input class="search-ipt" q-model="search" type="text" placeholder="find something…">
+          <i class="icon-search icon" q-show="search|isEmptyStr"></i>
+          <i class="icon-close icon" q-show="search|isNotEmptyStr" q-on="click:clearChose(e)"></i>
+        </div>
+        <div class="widget tagcloud search-tag">
+          <p class="search-tag-wording">tag:</p>
+          <label class="search-switch">
+            <input type="checkbox" q-on="click:toggleTag(e)" q-attr="checked:showTags">
+          </label>
+          <ul class="article-tag-list" q-show="showTags">
+            
+            <div class="clearfix"></div>
+          </ul>
+        </div>
+        <ul class="search-ul">
+          <p q-show="jsonFail" style="padding: 20px; font-size: 12px;">
+            缺失模块。<br/>1、在博客根目录（注意不是yilia根目录）执行以下命令：<br/> npm i hexo-generator-json-content --save<br/><br/>
+            2、在根目录_config.yml里添加配置：
+<pre style="font-size: 12px;" q-show="jsonFail">
+  jsonContent:
+    meta: false
+    pages: false
+    posts:
+      title: true
+      date: true
+      path: true
+      text: true
+      raw: false
+      content: false
+      slug: false
+      updated: false
+      comments: false
+      link: false
+      permalink: false
+      excerpt: false
+      categories: false
+      tags: true
+</pre>
+          </p>
+          <li class="search-li" q-repeat="items" q-show="isShow">
+            <a q-attr="href:path|urlformat" class="search-title"><i class="icon-quo-left icon"></i><span q-text="title"></span></a>
+            <p class="search-time">
+              <i class="icon-calendar icon"></i>
+              <span q-text="date|dateformat"></span>
+            </p>
+            <p class="search-tag">
+              <i class="icon-price-tags icon"></i>
+              <span q-repeat="tags" q-on="click:choseTag(e, name)" q-text="name|tagformat"></span>
+            </p>
+          </li>
+        </ul>
+    	</section>
+    
+
+    
+    	<section class="tools-section tools-section-friends" q-show="friends">
+  		
+        <ul class="search-ul">
+          
+            <li class="search-li">
+              <a href="http://localhost:4000/" target="_blank" class="search-title"><i class="icon-quo-left icon"></i>友情链接1</a>
+            </li>
+          
+            <li class="search-li">
+              <a href="http://localhost:4000/" target="_blank" class="search-title"><i class="icon-quo-left icon"></i>友情链接2</a>
+            </li>
+          
+            <li class="search-li">
+              <a href="http://localhost:4000/" target="_blank" class="search-title"><i class="icon-quo-left icon"></i>友情链接3</a>
+            </li>
+          
+            <li class="search-li">
+              <a href="http://localhost:4000/" target="_blank" class="search-title"><i class="icon-quo-left icon"></i>友情链接4</a>
+            </li>
+          
+            <li class="search-li">
+              <a href="http://localhost:4000/" target="_blank" class="search-title"><i class="icon-quo-left icon"></i>友情链接5</a>
+            </li>
+          
+            <li class="search-li">
+              <a href="http://localhost:4000/" target="_blank" class="search-title"><i class="icon-quo-left icon"></i>友情链接6</a>
+            </li>
+          
+        </ul>
+  		
+    	</section>
+    
+
+    
+    	<section class="tools-section tools-section-me" q-show="aboutme">
+  	  	
+  	  		<div class="aboutme-wrap" id="js-aboutme">很惭愧&lt;br&gt;&lt;br&gt;只做了一点微小的工作&lt;br&gt;谢谢大家</div>
+  	  	
+    	</section>
+    
+  </div>
+  
+</div>
+    <!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                      <div class="pswp__preloader__cut">
+                        <div class="pswp__preloader__donut"></div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div> 
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+  </div>
+</body>
+</html>
