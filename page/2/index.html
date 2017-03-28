@@ -141,6 +141,61 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-socket" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/12/30/socket/">基于socket.io的chat application（一）</a>
+    </h1>
+  
+
+        <a href="/2016/12/30/socket/" class="archive-article-date">
+  	<time datetime="2016-12-30T06:26:05.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2016-12-30</time>
+</a>
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>元旦跨年之时，手头接到个需求，要在演出选座流程中实现一个基于webSocket的实时所锁座功能。<br>实现效果见下实例<a href="http://10.104.108.102:9090/" target="_blank" rel="external">demo</a></p>
+<p>本文主要讲述一下什么是websocket技术，她在前端有哪些应用场景以及实现realtime需求的一些解决方案</p>
+<p>（一）什么是websocket</p>
+<p>（二）socket.io</p>
+<p>（三）基于socket的chat application<br><figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div></pre></td><td class="code"><pre><div class="line"><span class="meta">&lt;!doctype html&gt;</span></div><div class="line"><span class="tag">&lt;<span class="name">html</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">head</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">"utf-8"</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">meta</span> <span class="attr">name</span>=<span class="string">"viewport"</span> <span class="attr">content</span>=<span class="string">"width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">title</span>&gt;</span>Socket.IO chat<span class="tag">&lt;/<span class="name">title</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">style</span>&gt;</span><span class="undefined"></span></div><div class="line">            * &#123; margin: 0; padding: 0; box-sizing: border-box; font-size: 16px&#125;</div><div class="line">            *:focus &#123; outline: none; &#125;</div><div class="line">            body &#123; font: 13px Helvetica, Arial; &#125;</div><div class="line">            form &#123; position: relative;padding: 3px; position: fixed; bottom: 0; width: 100%; border-top: 1px solid #eee;height: 25%;&#125;</div><div class="line">            form input &#123; border: 0; padding: 10px; width: 100%; height:100%; margin-right: .5%;&#125;</div><div class="line">            form button &#123; width: 19%; background: rgb(130, 224, 255); border: none; padding: 10px; position: absolute; bottom: 0; right: 0;&#125;</div><div class="line">            form img &#123;position: absolute; top: 0;width: 90%;&#125;</div><div class="line">            #messages &#123; list-style-type: none; margin: 0; padding: 0; &#125;</div><div class="line">            #messages li &#123; padding: 5px 10px; &#125;</div><div class="line">            #messages li:nth-child(odd) &#123; background: #eee; &#125;</div><div class="line">        <span class="tag">&lt;/<span class="name">style</span>&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="name">head</span>&gt;</span></div><div class="line">    </div><div class="line">    <span class="tag">&lt;<span class="name">body</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">ul</span> <span class="attr">id</span>=<span class="string">"messages"</span>&gt;</span><span class="tag">&lt;/<span class="name">ul</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">form</span> <span class="attr">action</span>=<span class="string">""</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"chat.png"</span> /&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">input</span> <span class="attr">id</span>=<span class="string">"m"</span> <span class="attr">autocomplete</span>=<span class="string">"off"</span> /&gt;</span></div><div class="line">            <span class="comment">&lt;!--button&gt;Send&lt;/button--&gt;</span></div><div class="line">        <span class="tag">&lt;/<span class="name">form</span>&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="name">body</span>&gt;</span></div><div class="line"></div><div class="line">    <span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"/socket.io/socket.io.js"</span>&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></div><div class="line">    <span class="comment">&lt;!--script src="https://cdn.socket.io/socket.io-1.2.0.js"&gt;&lt;/script--&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"http://code.jquery.com/jquery-1.11.1.js"</span>&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="xml"></span></div><div class="line">        var socket = io();</div><div class="line">        $('form').submit(function()&#123;</div><div class="line">            socket.emit('chat message', $('#m').val());</div><div class="line">            $('#m').val('');</div><div class="line">            return false;</div><div class="line">        &#125;);</div><div class="line">        socket.on('chat message', function(msg)&#123;</div><div class="line">            $('#messages').append($('<span class="tag">&lt;<span class="name">li</span>&gt;</span>').text(msg));</div><div class="line">        &#125;);</div><div class="line">    <span class="tag">&lt;/<span class="name">script</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></div></pre></td></tr></table></figure></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> express = <span class="built_in">require</span>(<span class="string">'express'</span>)</div><div class="line"><span class="keyword">var</span> app = express()</div><div class="line"><span class="comment">// var app = require('express')()</span></div><div class="line"><span class="keyword">var</span> server = <span class="built_in">require</span>(<span class="string">'http'</span>).Server(app)</div><div class="line"><span class="keyword">var</span> io = <span class="built_in">require</span>(<span class="string">'socket.io'</span>)(server)</div><div class="line"></div><div class="line"><span class="comment">//server.listen(9527);</span></div><div class="line"></div><div class="line"><span class="comment">//处理静态文件</span></div><div class="line">app.use(express.static(__dirname + <span class="string">'/images'</span>))</div><div class="line"></div><div class="line">app.get(<span class="string">'/'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">req, res</span>)</span>&#123;</div><div class="line">    <span class="comment">//res.sendfile('index.html');</span></div><div class="line">    res.sendFile(__dirname + <span class="string">'/index.html'</span>)</div><div class="line">&#125;)</div><div class="line"></div><div class="line">io.on(<span class="string">'connection'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">socket</span>)</span>&#123;</div><div class="line">    socket.on(<span class="string">'chat message'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">msg</span>)</span>&#123;</div><div class="line">        <span class="built_in">console</span>.log(<span class="string">'message: '</span> + msg)</div><div class="line">        <span class="comment">// Broadcasting from the server to the rest of the users    </span></div><div class="line">        io.emit(<span class="string">'chat message'</span>, msg)</div><div class="line">    &#125;)</div><div class="line">    <span class="comment">//socket.broadcast.emit('hi');</span></div><div class="line"></div><div class="line">    socket.on(<span class="string">'disconnect'</span>, <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</div><div class="line">        io.emit(<span class="string">'user disconnected'</span>)</div><div class="line">    &#125;)</div><div class="line">&#125;)</div><div class="line"></div><div class="line">server.listen(<span class="number">3000</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</div><div class="line">    <span class="built_in">console</span>.log(<span class="string">'listening on *:3000'</span>)</div><div class="line">&#125;)</div></pre></td></tr></table></figure>
+<p>###效果</p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2016/12/30/socket/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+
+
+
+
+
+
+
+  
     <article id="post-zxm-first-page" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
