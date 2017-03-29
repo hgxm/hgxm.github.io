@@ -141,6 +141,134 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-git_ssh_rsa" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/03/29/git_ssh_rsa/">git/ssh配置连接多个git服务器（解决本地多个ssh key的问题）</a>
+    </h1>
+  
+
+        <a href="/2017/03/29/git_ssh_rsa/" class="archive-article-date">
+  	<time datetime="2017-03-29T15:28:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-03-29</time>
+</a>
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>（一）实际项目<br>今天在欲本地开发环境连接一个新的git的时候，（首要需求是往新的git库的前端模块FE下上传前端代码，但前提是先要完成git clone FE模块），出现了在添加ssh key之后无法连接到git从而导致无法clone。<br>之前已连接过gitlab.intra.wepiao.com库（show/wechat、show/m、show/mqq等都在此库下，如：git@gitlab.intra.wepiao.com:show/wechat.git），现在需要链接一个新的git库：git.intra.wepiao.com（git@git.intra.wepiao.com:showbiz/FE.git），那么问题出现了，<br>一开始操作步骤大致如下：</p>
+<ol>
+<li><p>首先查看.ssh下是某已经存在私钥和公钥</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">cd  ~/.ssh</div><div class="line">ll</div><div class="line">id_rsa      id_rsa.pub  known_hosts</div></pre></td></tr></table></figure>
+</li>
+<li><p>.ssh下生成新的ssh key同时指定新的文件名</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ssh-keygen -t rsa -f ~/.ssh/id_rsa.showbiz -C &quot;zhangxuemei@wepiao.com&quot;</div></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>(注意此处后来将文件名重命名成了id_rsa_showbiz 和 id_rsa_showbiz.pub)<br><img src="https://hgxm.github.io/img/ssh2.png" alt="img"></p>
+<ol>
+<li>新增并配置config文件<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">touch ~/.ssh/config</div><div class="line"></div><div class="line">vi config</div><div class="line"></div><div class="line">Host git</div><div class="line">  HostName git.intra.wepiao.com</div><div class="line">  User zhangxuemei</div><div class="line">  IdentityFile /Users/zhangxuemei/.ssh/id_rsa_showbiz</div><div class="line"></div><div class="line">Host gitlab</div><div class="line">  HostName gitlab.intra.wepiao.com</div><div class="line">  User zhangxuemei</div><div class="line">  IdentityFile /Users/zhangxuemei/.ssh/id_rsa</div></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>(此处一定注意每个参数的含义、书写和格式)<br><img src="https://hgxm.github.io/img/ssh3.png" alt="img"></p>
+<ol>
+<li>复制公钥到git库<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">cat id_rsa_showbiz.pub</div><div class="line">复制····</div></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>访问<a href="http://git.intra.wepiao.com/showbiz/FE，选Profile" target="_blank" rel="external">http://git.intra.wepiao.com/showbiz/FE，选Profile</a> setting，SSH Keys，Add keys<br><img src="https://hgxm.github.io/img/ssh4.png" alt="img"></p>
+<ol>
+<li>验证是否连接成功<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ssh -T git@git</div></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>注意：@后边的git为config配置的别名</p>
+<ol>
+<li>clone远端项目<br>以上一切配置看似貌似都木有问题，但是问题出现了，<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"> git clone git@git:showbiz/FE.git</div><div class="line"></div><div class="line">（注意此处是 git clone git@git:showbiz/FE.git，而不是 git clone git@git.intra.wepiao.com:showbiz/FE.git）</div></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>失败！失败！失败！<br>Cloning into ‘FE’…<br>The authenticity of host ‘git.intra.wepiao.com (192.168.101.83)’ can’t be established.<br>RSA key fingerprint is SHA256:X5KQvAWOeITMvTHn0iHXoRLKCZA/oYwtWfiIAQkK5p0.<br>Are you sure you want to continue connecting (yes/no)?<br>Host key verification failed.<br>fatal: Could not read from remote repository.</p>
+<p>Please make sure you have the correct access rights<br>and the repository exists.<br><img src="https://hgxm.github.io/img/ssh1.png" alt="img"></p>
+<p>无法连接上（公钥和私钥匹配不上），问题关键点是Are you sure you want to continue connecting (yes/no)? 要输入yes而不能敲回车！！！<br>此步骤会将git的host、ip、公钥等写进known_hosts文件!!!<br><img src="https://hgxm.github.io/img/ssh5.png" alt="img"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git.intra.wepiao.com,192.168.101.83 ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAtx9eJeCb6a6MLdcoLU3tGXPGcd2zCHxAxe27zTIptQH2Xo+U0td81bjBGSsUsigMi5yGRgXHWW0uPGGvbC3UMG52t9TwBCLG8PCREkQO6LUJmPlZC5uSqNV8HA6nJ9OzDaSBUpbr+KP5FKUsJaGCukFgD0pGEgwOTdt5pozuXvyTelj7otem1SM7S2XIWlE9XMz7YcJScW1crcgow9ni0gtm1OcxsZvqZuMXlDiIj/Zj/SeC0kp7aiW+jQt2k2Mv9iXBoxCaxkVxd1LaALbmmVfYe2XbDxFLDr7b8VUkMZLyQ10z2rjiHk05Nb4yQ96ULt9MbCE9ycu0ZfnM4n9coQ==</div></pre></td></tr></table></figure>
+<p>到此，新的git server可以正常连接，老得gitlab也不会受到影响！<br>折腾了这么就，归根接地总结就两次问题：<br>（1）要想要连接多个git服务器又不想每次本地切换id_rsa,就需要配置两个公/死钥对，病创建config文件做好相应的配置和映射<br>（2）需要关注known_hosts文件！只有known_hosts里被写进了git server的相关host、ip、公钥等信息，才能保证正确的连接！</p>
+<p>（二）知识点总结(关于git/ssh需要捋清的几个问题)<br>（1）概念性问题</p>
+<ol>
+<li>rsa 与 rsa.pub</li>
+</ol>
+<p>网上很容易搜到的东西我就不说了，我们知道，通过：</p>
+<p>ssh-keygen -t rsa -C “something”<br>可以生成两个文件，这两个文件的命名默认是 id_rsa 和 id_rsa.pub，如果你在键入上述命令回车之后，重新输入了命名，那此时生成的两个文件就是 [命名] 和 [命名].pub ，这个好理解。</p>
+<p>主要是解释下生成了两个什么东西。id_rsa 可以称之为私有密钥，id_rsa.pub 可以称之为公有密钥。我们会把公有密钥交给服务端，当需要从服务端请求内容的时候，要带上私有密钥。此时，服务器会通过一定的算法计算私有密钥，并判断计算的结果是否与公有密钥一样，如果不一样则响应请求失败。<br>+———–+                           +———–+<br>|           |                           |           |<br>|           |    enc(rsa) == rsa.pub    |           |<br>|  client   | ————————&gt; |   server  |<br>|           |             ?             |           |<br>|           |                           |           |<br>+———–+                           +———–+<br>rsa.pub 里面是个什么东西，其实很简单：</p>
+<p>ssh-rsa base64(加密内容) “something”<br>而 rsa 中是：</p>
+<p>—–BEGIN RSA PRIVATE KEY—–<br>base64(私有密钥的一些处理)<br>—–END RSA PRIVATE KEY—–</p>
+<ol>
+<li>验证程序</li>
+</ol>
+<p>在使用 git 命令与服务端进行交互之前，我们可以先验证下服务器和客户端是否握手成功了。</p>
+<p>ssh -T git@xxx.com<br>如果是 github，就可以直接写 git@github.com, 如果是 aaa.bbb.com，就可以写 git@aaa.bbb.com。 如果成功，你会看到 success 之类的字眼。</p>
+<ol>
+<li>known_hosts 文件</li>
+</ol>
+<p>这是个什么文件呢？一般情况下 windows 下不会产生这个文件，先说说他是干什么的。当我们成功与服务端进行连接时，ssh 会记录服务端的 Host、IP 以及 rsa 文件，当连接过程中出现：</p>
+<p>Permanently added ‘10.0.0.0’ (RSA) to the list of known hosts.<br>如果你选择 Yes，那这个 known_hosts 文件中就会多出一条记录。windows 是不会自动产生这个文件的，也可能是程序产生了，但是没权限写入，所以我们没有在 .ssh/ 目录下看到这个文件。但如果我们创建了这个文件，会发现里面的内容会随着我们的验证慢慢增加。</p>
+<p>搞清楚了这些概念，我们再说说会遇到的问题。</p>
+<p>（2）常见问题</p>
+<ol>
+<li>git@xxx.com 输入密钥</li>
+</ol>
+<p>当你键入 ssh -T git@xxx.com 这条命令之后，程序提示要你输入 git@xxx.com 的密码，那不用想了，程序没找到你的私有密钥。在哪些情况下会这样呢？</p>
+<p>我们在生成这两个密钥的时候，程序可能没有帮我们在根目录下(C:/Users/yourName)新建一个 .ssh/ 文件夹，而他在建立连接的时候会默认寻找 ~/.ssh/id_rsa ，如果没有新建一个这样的文件夹很显然是找不到的。你可以在根目录下通过命令行来新建一个文件夹</p>
+<p>mkdir .ssh<br>之所以要用命令行是因为有时候浏览器不让你在文件夹名第一位放点号。</p>
+<p>当然也有可能是因为你没有把创建的两个密钥放到 .ssh/ 目录下，而是直接扔在根目录下。</p>
+<ol>
+<li>Host key verification failed</li>
+</ol>
+<p>“Host key verification failed.” 相信你也撞到了这个问题，主机的密钥验证失败，主机就是你的机器，密钥验证失败有两个原因，一个是 RSA 做了更改，另一个原因是在 known_hosts 中存在一个缓存的记录，如果确认了 RSA 没有错误，那你就应该去 known_hosts 中删掉对应的那个记录（这个记录可以当做是缓存，是对验证做了一次缓存，缓存的作用是减少验证次数，不需要每次都验证，读取缓存就行了）。</p>
+<p>当然，你也可以直接删除这个 known_hosts 文件。</p>
+<ol>
+<li>Permission denied (publickey)</li>
+</ol>
+<p>“Permission denied (publickey).” 这个问题其实和上面的 2 差不多，当你出现过 “Host key verification failed.”，然后继续执行程序，如执行 ssh -T git@xxx.com 的时候就会出现这个问题提醒。说到底就是没有找到你的 rsa 私有密钥，或者 rsa 密钥匹配出错。</p>
+<ol>
+<li>多个服务端的维护</li>
+</ol>
+<p>很常见的问题。上面我们说到了，程序会默认寻找 ~/.ssh/id_rsa 这个文件，同一目录下显然不能有两个重名文件，也就是说当我们去认证 github 和另外一个 git 服务器的时候，我们需要把两个 rsa 私有密钥的名字换来换去，想用谁就把谁改成 id_rsa。特别麻烦，那肿么办？</p>
+<p>之前在网上看到说是对 ssh_config 进行配置，配置内容是：</p>
+<p>Host: github.com<br>    User: boy-a<br>    IdentifyFile: ~/.ssh/github<br>Host: xxx.com<br>    User: boy-b<br>    IdentifyFile: ~/.ssh/xxx<br>这里的 “~/.ssh/github” 和 “~/.ssh/xxx” 都是 rsa 文件，文件的命令可以直接改，也可以在开始生成的时候设定，命名对内容没有任何影响。项目的几行代码应该也是十分清晰的，针对不同的 git 服务器，使用不用的 IdentifyFile。</p>
+<p>但是你会发现，你的设置毫无用处，因为你把文件名搞错了！在 linux/unix 下可能是使用 ssh_config 这个文件名，但是在 windows 下是使用 config 作为文件名放在 ~/.ssh/ 目录中！</p>
+<p>总结：纠结了这么久的问题，说到底就是一个 config 的配置问题，遇到这种问题最快捷的方式并不是在网上疯狂的搜索答案，而是静下心来看看 rsa | git | ssh 的基础知识，了解每个参数及其用途，对症下药！</p>
+<p><a href="http://www.tuicool.com/articles/yQJfi2" target="_blank" rel="external">原文链接</a></p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2017/03/29/git_ssh_rsa/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+
+
+
+
+
+
+
+  
     <article id="post-jstraining" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -796,77 +924,6 @@
       
         <p class="article-more-link">
           <a class="article-more-a" href="/2017/03/03/js_array_filter_dd/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-
-
-
-
-
-
-
-  
-    <article id="post-npm_mgt" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/03/03/npm_mgt/">npm包管理（安装、升级、删除）</a>
-    </h1>
-  
-
-        <a href="/2017/03/03/npm_mgt/" class="archive-article-date">
-  	<time datetime="2017-03-03T08:10:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-03-03</time>
-</a>
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>(1) 在开发过程中，<strong>引入</strong>一个新包的流程如下:</p>
-<ul>
-<li>npm install PACKAGE_NAME@VERSION –save 获取特定版本的包</li>
-<li>测试功能</li>
-<li>测试功能正常后，执行 npm shrinkwrap 把依赖写入 shrinkwrap 文件</li>
-<li>在代码仓库中提交 shrinkwrap / package.son 描述</li>
-</ul>
-<p>(2) 在开发过程中，<strong>升级</strong>一个包的流程如下:</p>
-<ul>
-<li>npm outdated 获取项目所有依赖的更新信息</li>
-<li>npm install PACKAGE_NAME@VERSION –save 获取特定版本的包</li>
-<li>测试功能</li>
-<li>测试功能正常后，执行 npm shrinkwrap 把依赖写入 shrinkwrap 文件</li>
-<li>在代码仓库中提交 shrinkwrap / package.son 描述</li>
-</ul>
-<p>(3) 在开发过程中，<strong>删除</strong>一个包的流程如下：</p>
-<ul>
-<li>npm uninstall PACKAGE_NAME –save 删除这个包</li>
-<li>测试功能</li>
-<li>测试功能正常后，执行 npm shrinkwrap 把更新的依赖写入 shrinkwrap 文件</li>
-<li>在代码仓库中提交 shrinkwrap / package.json 描述</li>
-</ul>
-<p>注意：如果代码库的package.json和npm-shrinkwarp.json文件有更新，自己的开发环境需要同步新的版本的包的时候，pull了json文件后，需要做三件事：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">（1）rm -rf node_modiules/  (删除本地的node_modiules目录)</div><div class="line">（2）npm cache clean       （清除npm cache）</div><div class="line">（3）npm install           （安装最新的包）</div></pre></td></tr></table></figure></p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2017/03/03/npm_mgt/">展开全文 >></a>
         </p>
       
 
