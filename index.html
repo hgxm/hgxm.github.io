@@ -141,6 +141,64 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-js_error" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/03/31/js_error/">JS错误类型</a>
+    </h1>
+  
+
+        <a href="/2017/03/31/js_error/" class="archive-article-date">
+  	<time datetime="2017-03-31T07:48:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-03-31</time>
+</a>
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>（1）SyntaxError<br>SyntaxError是解析代码时发生的语法错误<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">// 变量名错误 </div><div class="line">var 1a; </div><div class="line">// 缺少括号 </div><div class="line">console.log &apos;hello&apos;);</div></pre></td></tr></table></figure></p>
+<p>（2）ReferenceError<br>ReferenceError是引用一个不存在的变量时发生的错误。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">unknownVariable </div><div class="line">// ReferenceError: unknownVariable is not defined</div></pre></td></tr></table></figure></p>
+<p>另一种触发场景是，将一个值分配给无法分配的对象，比如对函数的运行结果或者this赋值。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">console.log() = 1 </div><div class="line">// ReferenceError: Invalid left-hand side in assignment </div><div class="line">this = 1 </div><div class="line">// ReferenceError: Invalid left-hand side in assignment</div></pre></td></tr></table></figure></p>
+<p>上面代码对函数console.log的运行结果和this赋值，结果都引发了ReferenceError错误</p>
+<p>（3）RangeError<br>RangeError是当一个值超出有效范围时发生的错误。主要有几种情况，一是数组长度为负数，二是Number对象的方法参数超出范围，以及函数堆栈超过最大值。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">new Array(-1) </div><div class="line">// RangeError: Invalid array length </div><div class="line">(1234).toExponential(21) </div><div class="line">// RangeError: toExponential() argument must be between 0 and 20</div></pre></td></tr></table></figure></p>
+<p>（4）TypeError<br>TypeError是变量或参数不是预期类型时发生的错误。比如，对字符串、布尔值、数值等原始类型的值使用new命令，就会抛出这种错误，因为new命令的参数应该是一个构造函数。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">new 123 </div><div class="line">//TypeError: number is not a func </div><div class="line">var obj = &#123;&#125;; obj.unknownMethod() </div><div class="line">// TypeError: undefined is not a function</div></pre></td></tr></table></figure></p>
+<p>上面代码的第二种情况，调用对象不存在的方法，会抛出TypeError错误。</p>
+<p>（5）URIError<br>URIError是URI相关函数的参数不正确时抛出的错误，主要涉及encodeURI()、decodeURI()、encodeURIComponent()、decodeURIComponent()、escape()和unescape()这六个函数。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">decodeURI(&apos;%2&apos;) </div><div class="line">// URIError: URI malformed</div></pre></td></tr></table></figure></p>
+<p>（6）EvalError<br>eval函数没有被正确执行时，会抛出EvalError错误。该错误类型已经不再在ES5中出现了，只是为了保证与以前代码兼容，才继续保留。<br>以上这6种派生错误，连同原始的Error对象，都是构造函数。开发者可以使用它们，人为生成错误对象的实例。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">new Error(&quot;出错了！&quot;); </div><div class="line">new RangeError(&quot;出错了，变量超出有效范围！&quot;); </div><div class="line">new TypeError(&quot;出错了，变量类型无效！&quot;);</div></pre></td></tr></table></figure></p>
+<p>上面代码表示新建错误对象的实例，实质就是手动抛出错误。可以看到，错误对象的构造函数接受一个参数，代表错误提示信息（message）。</p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2017/03/31/js_error/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+
+
+
+
+
+
+
+  
     <article id="post-git_ssh_rsa" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -869,61 +927,6 @@
       
         <p class="article-more-link">
           <a class="article-more-a" href="/2017/03/06/setTimeout0/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-
-
-
-
-
-
-
-  
-    <article id="post-js_array_filter_dd" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/03/03/js_array_filter_dd/">如何形象地解释 JavaScript 中 map、foreach、reduce 间的区别</a>
-    </h1>
-  
-
-        <a href="/2017/03/03/js_array_filter_dd/" class="archive-article-date">
-  	<time datetime="2017-03-03T09:28:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-03-03</time>
-</a>
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>情景设定：<br>假设我们有一个数组，每个元素是一个人。你面前站了一排人。</p>
-<p>（1）foreach 就是你按顺序一个一个跟他们做点什么，具体做什么，随便:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">people.forEach(function (dude) &#123;</div><div class="line">  dude.pickUpSoap();</div><div class="line">&#125;);</div></pre></td></tr></table></figure></p>
-<p>（2）map就是你手里拿一个盒子（一个新的数组），一个一个叫他们把钱包扔进去。结束的时候你获得了一个新的数组，里面是大家的钱包，钱包的顺序和人的顺序一一对应。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">var wallets = people.map(function (dude) &#123;</div><div class="line">  return dude.wallet;</div><div class="line">&#125;);</div></pre></td></tr></table></figure></p>
-<p>（3）reduce 就是你拿着钱包，一个一个数过去看里面有多少钱啊？每检查一个，你就和前面的总和加一起来。这样结束的时候你就知道大家总共有多少钱了。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">var totalMoney = wallets.reduce(function (countedMoney, wallet) &#123;</div><div class="line">  return countedMoney + wallet.money;</div><div class="line">&#125;, 0);</div></pre></td></tr></table></figure></p>
-<p>（4）filter，你一个个钱包数过去的时候，里面钱少于100块的不要（留在原来的盒子里），多于100块的丢到一个新的盒子里。这样结束的时候你又有了一个新的数组，里面是所有钱多于 100 块的钱包<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">var fatWallets = wallets.filter(function (wallet) &#123;</div><div class="line">  return wallet.money &gt; 100;</div><div class="line">&#125;);</div></pre></td></tr></table></figure></p>
-<p>最后要说明一点这个类比和实际代码的一个区别，那就是 map 和 filter 都是 immutable methods，也就是说它们只会返回一个新数组，而不会改变原来的那个数组，所以这里 filter 的例子是和代码有些出入的（原来的盒子里的钱包减少了），但为了形象说明，大家理解就好。</p>
-<p>作者：尤雨溪<br>链接：<a href="https://www.zhihu.com/question/24927450/answer/29478982" target="_blank" rel="external">https://www.zhihu.com/question/24927450/answer/29478982</a><br>来源：知乎<br>著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。</p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2017/03/03/js_array_filter_dd/">展开全文 >></a>
         </p>
       
 
